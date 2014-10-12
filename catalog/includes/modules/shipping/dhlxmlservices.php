@@ -4,7 +4,7 @@
  * @copyright Copyright 2003-2009 Zen Cart Development Team
  * @copyright Portions Copyright 2003 osCommerce
  * @license http://www.zen-cart.com/license/2_0.txt GNU Public License V2.0
- * @version $Id: dhlxmlservices.php 20140911 bislewl
+ * @version $Id: dhlxmlservices.php 20141012 bislewl
  */
 /**
  * DHL Shipping Module class
