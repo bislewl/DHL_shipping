@@ -1,0 +1,8 @@
+{
+    "plugin_id": "1910",
+    "github_repo": "https://github.com/bislewl/DHL_shipping.git",
+    "name": "DHL Shipping",
+    "author": "bislewl",
+    "description": "This module is for DHL shipping, you will need your own account number and API credentials from DHL",
+    "support_thread": ""
+}

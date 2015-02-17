@@ -67,7 +67,12 @@ class dhlxmlservices extends base {
     if (zen_get_shipping_enabled($this->code)) {
       $this->enabled = ((MODULE_SHIPPING_DHL_STATUS == 'True') ? true : false);
     }
-
+if ($this->enabled && IS_ADMIN_FLAG) {
+    $new_version_details = plugin_version_check_for_updates(1910, '1.1.0');
+        if ($new_version_details !== FALSE) {
+          $this->title .= '<span class="alert">' . ' - NOTE: A NEW VERSION OF THIS PLUGIN IS AVAILABLE. <a href="' . $new_version_details['link'] . '" target="_blank">[Details]</a>' . '</span>';
+        }
+}
     if ($this->enabled) {
       // check MODULE_SHIPPING_DHL_HANDLING_METHOD is in
       $check_query = $db->Execute("select configuration_value from " . TABLE_CONFIGURATION . " where configuration_key = 'MODULE_SHIPPING_DHL_HANDLING_METHOD'");
@@ -189,7 +194,7 @@ class dhlxmlservices extends base {
     global $db;
             
     $db->Execute("INSERT INTO " . TABLE_CONFIGURATION . " (configuration_title, configuration_key, configuration_value, configuration_description, configuration_group_id, sort_order, set_function, date_added) values ('Enable DHL Shipping', 'MODULE_SHIPPING_DHL_STATUS', 'True', 'Do you want to offer DHL shipping?', '6', '0', 'zen_cfg_select_option(array(\'True\', \'False\'), ', now())");
-    $db->Execute("INSERT INTO " . TABLE_CONFIGURATION . " (configuration_title, configuration_key, configuration_value, configuration_description, configuration_group_id, sort_order, date_added) values ('DHL Version', 'MODULE_SHIPPING_DHL_VERSION', '1.0.0', '', '6', '0', now())");
+    $db->Execute("INSERT INTO " . TABLE_CONFIGURATION . " (configuration_title, configuration_key, configuration_value, configuration_description, configuration_group_id, sort_order, date_added) values ('DHL Version', 'MODULE_SHIPPING_DHL_VERSION', '1.1.0', '', '6', '0', now())");
     $db->Execute("INSERT INTO " . TABLE_CONFIGURATION . " (configuration_title, configuration_key, configuration_value, configuration_description, configuration_group_id, sort_order, date_added) values ('Sort order of display.', 'MODULE_SHIPPING_DHL_SORT_ORDER', '0', 'Sort order of display. Lowest is displayed first.', '6', '0', now())");
     $db->Execute("INSERT INTO " . TABLE_CONFIGURATION . " (configuration_title, configuration_key, configuration_value, configuration_description, configuration_group_id, sort_order, date_added) values ('Site ID', 'MODULE_SHIPPING_DHL_SITEID', 'CustomerTest', 'Provided by DHL', '6', '1', now())");
     $db->Execute("INSERT INTO " . TABLE_CONFIGURATION . " (configuration_title, configuration_key, configuration_value, configuration_description, configuration_group_id, sort_order, date_added) values ('Account Number', 'MODULE_SHIPPING_DHL_ACCOUNTNUMBER', '803921577', 'Provided by DHL', '6', '1', now())");
@@ -352,3 +357,29 @@ class dhlxmlservices extends base {
         }
         return $dhl_shipdate;
   }
+  
+  if (!function_exists('plugin_version_check_for_updates')) {
+    function plugin_version_check_for_updates($fileid = 0, $version_string_to_check = '') {
+        if ($fileid == 0){
+            return FALSE;
+        }
+        $new_version_available = FALSE;
+        $lookup_index = 0;
+        $url = 'http://www.zen-cart.com/downloads.php?do=versioncheck' . '&id=' . (int) $fileid;
+        $data = json_decode(file_get_contents($url), true);
+        if (!$data || !is_array($data)) return false;
+        // compare versions
+        if (version_compare($data[$lookup_index]['latest_plugin_version'], $version_string_to_check) > 0) {
+            $new_version_available = TRUE;
+        }
+        // check whether present ZC version is compatible with the latest available plugin version
+        if (!in_array('v' . PROJECT_VERSION_MAJOR . '.' . PROJECT_VERSION_MINOR, $data[$lookup_index]['zcversions'])) {
+            $new_version_available = FALSE;
+        }
+        if ($version_string_to_check == true) {
+            return $data[$lookup_index];
+        } else {
+            return FALSE;
+        }
+    }
+}
